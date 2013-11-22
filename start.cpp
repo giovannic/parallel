@@ -1,12 +1,14 @@
 #include <iostream>
 #include <complex>
 #include <cmath>
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 using namespace std;
 
 #include "mystery.h"
 
-complex<double> L2(double X, double Y){
+double L2(double X, double Y){
   complex<double> S (X, Y);
   double Rho = 0.75;
   double Mean = 1;
@@ -16,20 +18,66 @@ complex<double> L2(double X, double Y){
   complex<double> Fs = (1.0 - Gse)/(S*(1.0 - Rho*Gse));
 	
   double Rfs = Fs.real();
-  return Fs;
+  return Rfs;
+}
+
+double LReal(double X, double Y) {
+  return L(X,Y).real();
+}
+
+double Euler(double T) {
+  double SU[13];
+  int C[] = {1,11,55,165,330,462,462,330,165,55,11,1};
+
+  double A = 18.4;
+  int Ntr = 15;
+  double U = exp(A/2)/T;
+  double X = A/(2*T);
+  double H = M_PI/T;
+
+  double Sum = L2(X,0)/2;
+  for(int N = 1; N <= Ntr; N++) {
+    double Y = N*H;
+    Sum += pow((-1),N)*L2(X,Y);
+  }
+
+  SU[0] = Sum;
+  for(int K = 0; K < 12; K++) {
+    int N = Ntr + K+1;
+    double Y = N*H;
+    SU[K+1] = SU[K] + pow((-1), N)*L2(X,Y);
+  }
+
+  double Avgsu = 0;
+  double Avgsu1 = 0;
+  for(int j = 0; j < 12; j++) {
+    Avgsu += C[j]*SU[j];
+    Avgsu1 += C[j]*SU[j+1];
+  }
+
+  double Fun = U*Avgsu/2048;
+  double Fun1 = U*Avgsu1/2048;
+  double err = abs(Fun-Fun1)/2;
+
+  return Fun1;
+
 }
 
 int main() {
 
   cout << "Welcome, agent(s)! Best of luck." << endl;
-  cout << L(1,1) << endl;
-  cout << L(1,1) << endl;
-  cout << L(1,1) << endl;
-  cout << L(1,1) << endl;
-  cout << L(1,1) << endl;
-  cout << L2(1,1) << endl;
-
-
+  //Euler();
+  
+  //time_t  timev;
+  //time(&timev);
+  //double T = (double) timev;
+//
+  //Euler(T);
+  cout << "[";
+  for(int i = 0; i <= 12; i++) {
+    cout << Euler(i) << ", ";
+  }
+  cout <<"]" << endl;
   return 0;
 }
 
