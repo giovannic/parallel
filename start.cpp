@@ -35,17 +35,17 @@ double Euler(double T) {
   double X = A/(2*T);
   double H = M_PI/T;
 
-  double Sum = L2(X,0)/2;
+  double Sum = LReal(X,0)/2;
   for(int N = 1; N <= Ntr; N++) {
     double Y = N*H;
-    Sum += pow((-1),N)*L2(X,Y);
+    Sum += pow((-1),N)*LReal(X,Y);
   }
 
   SU[0] = Sum;
   for(int K = 0; K < 12; K++) {
     int N = Ntr + K+1;
     double Y = N*H;
-    SU[K+1] = SU[K] + pow((-1), N)*L2(X,Y);
+    SU[K+1] = SU[K] + pow((-1), N)*LReal(X,Y);
   }
 
   double Avgsu = 0;
