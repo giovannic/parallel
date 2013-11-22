@@ -4,6 +4,8 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+#define len 12
+
 using namespace std;
 
 #include "mystery.h"
@@ -25,9 +27,23 @@ double LReal(double X, double Y) {
   return L(X,Y).real();
 }
 
+int factorial(int n)
+{
+  return (n == 1 || n == 0) ? 1 : factorial(n - 1) * n;
+}
+
+double bin(int n, int k) {
+  return factorial(n)/(factorial(k)*factorial(n-k));
+}
+
 double Euler(double T) {
-  double SU[13];
-  int C[] = {1,11,55,165,330,462,462,330,165,55,11,1};
+  //int C[len] = {1,11,55,165,330,462,462,330,165,55,11,1}
+  int C[len];
+  for(int i = 0; i < len; i++) {
+    C[i] = bin(len-1, i);
+  }
+
+  double SU[len+1];
 
   double A = 18.4;
   int Ntr = 15;
@@ -42,7 +58,7 @@ double Euler(double T) {
   }
 
   SU[0] = Sum;
-  for(int K = 0; K < 12; K++) {
+  for(int K = 0; K < len; K++) {
     int N = Ntr + K+1;
     double Y = N*H;
     SU[K+1] = SU[K] + pow((-1), N)*LReal(X,Y);
@@ -50,7 +66,7 @@ double Euler(double T) {
 
   double Avgsu = 0;
   double Avgsu1 = 0;
-  for(int j = 0; j < 12; j++) {
+  for(int j = 0; j < len; j++) {
     Avgsu += C[j]*SU[j];
     Avgsu1 += C[j]*SU[j+1];
   }
@@ -74,10 +90,16 @@ int main() {
 //
   //Euler(T);
   cout << "[";
-  for(int i = 0; i <= 12; i++) {
+  for(double i = 0; i <= 12.0; i+= 12.0/len) {
     cout << Euler(i) << ", ";
   }
   cout <<"]" << endl;
+
+  for(int i = 0; i < len; i++) {
+    cout << bin(len-1, i) << " ";
+  }
+  cout << endl;
+
   return 0;
 }
 
