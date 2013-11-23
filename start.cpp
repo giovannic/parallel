@@ -135,6 +135,9 @@ int main() {
 //
   //Euler(T);
   cout << "[";
+  
+  // Each of these is also fully independent, so could be run on a separate server
+  // And collected + sorted after all of them finish
   for(int i = 0; i <= 12; i++) {
     cout << Euler(i) << ", ";
   }
