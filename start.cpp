@@ -4,7 +4,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-#define len 12
+#define len 20
 
 using namespace std;
 
@@ -27,12 +27,12 @@ double LReal(double X, double Y) {
   return L(X,Y).real();
 }
 
-int factorial(int n)
+unsigned long factorial(int n)
 {
   return (n == 1 || n == 0) ? 1 : factorial(n - 1) * n;
 }
 
-double bin(int n, int k) {
+unsigned long bin(int n, int k) {
   return factorial(n)/(factorial(k)*factorial(n-k));
 }
 
@@ -81,7 +81,7 @@ double Euler(double T) {
 
 int main() {
 
-  cout << "Welcome, agent(s)! Best of luck." << endl;
+  cout << "Welcome, agents! Best of luck." << endl;
   //Euler();
   
   //time_t  timev;
