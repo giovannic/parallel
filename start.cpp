@@ -6,7 +6,7 @@
 #include <math.h>
 #include <mpi.h>
 
-#define len 20
+#define T_DIV 1
 
 using namespace std;
 
@@ -14,15 +14,6 @@ using namespace std;
 
 double LReal(double X, double Y) {
   return L(X,Y).real();
-}
-
-unsigned long factorial(int n)
-{
-  return (n == 1 || n == 0) ? 1 : factorial(n - 1) * n;
-}
-
-unsigned long bin(int n, int k) {
-  return factorial(n)/(factorial(k)*factorial(n-k));
 }
 
 double Euler(double T) {
@@ -81,27 +72,48 @@ int main() {
     return -1;
   }
 
-  int head = 1;
+  int head = 0;
   
   //rank is the iteration of euler
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  
-  // Each of these is also fully independent, so could be run on a separate server
-  // And collected + sorted after all of them finish
-  //for(int j = 0; j < 10; j++)
-  double result = Euler(rank);
-  double *results;
+  //cout << "rank of " << rank << endl;
+
   int size;
   MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+  int t_length = (12/T_DIV) - 1;
+  double ts [t_length];
+  double *results;
+
   if (rank == head){
-    double allocation[size];
-    //results = (double *)malloc(size*sizeof(double));
+    double allocation[t_length];
     results = allocation;
+
+    for (int i = 0; i < t_length; ++i){
+      ts[i] = (i + 1) * T_DIV;
+      cout << ts[i] << endl;
+    }
   }
 
-  MPI_Gather( &result, 1, MPI_DOUBLE, results, size, MPI_DOUBLE, head, MPI_COMM_WORLD); 
-  //(&result, MPI_DOUBLE, head, MPI_ANY_TAG, MPI_COMM_WORLD);
+  double t;
+  //scatter
+  //TODO what if not divisible
+  MPI_Scatter(&ts, t_length/size, MPI_DOUBLE, &t, t_length/size, MPI_DOUBLE, head, MPI_COMM_WORLD); 
+
+  // Each of these is also fully independent, so could be run on a separate server
+  double result = Euler(t);
+  cout << result << endl;
+
+  MPI_Gather(&result, t_length/size, MPI_DOUBLE, results, t_length, MPI_DOUBLE, head, MPI_COMM_WORLD); 
+
+  if (rank == head){
+    cout << '[';
+    for(int i = 0; i < 12; ++i){
+      cout << results[i] << ", ";
+    }
+    cout << ']' << endl;
+  }
 
   MPI_Finalize();
 
