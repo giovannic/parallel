@@ -15,6 +15,7 @@ double LReal(double X, double Y) {
 double Euler(double T) {
   double SU[13];
   int C[] = {1,11,55,165,330,462,462,330,165,55,11,1};
+  int totalC = 2048;
 
   double A = 18.4;
   int Ntr = 15;
@@ -76,7 +77,7 @@ double Euler(double T) {
   double Avgsu = 0;
   
   for(int j = 0; j < 12; j++) {
-    Avgsu += C[j]*Sum + C[j]*SU[j];
+    Avgsu += totalC*Sum + C[j]*SU[j];
   }
 
   // Can be refactored to
@@ -99,7 +100,7 @@ double Euler(double T) {
   // Avgsu1 = sum(CS[1])
   
   
-  double Fun = U*Avgsu/2048;
+  double Fun = U*Avgsu/totalC;
   
   // This is where Fun and Fun1 have to converge
 
