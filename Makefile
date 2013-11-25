@@ -4,7 +4,7 @@ start: start.o mystery.o
 prof: start
 	g++ start.o mystery.o -g -pg -fopenmp -o startp
 	./startp
-	gprof startp gmon.out
+	gprof -b startp gmon.out
 
 start.o: start.cpp
 	g++ -Wall -c start.cpp
