@@ -48,7 +48,7 @@ double Euler(double T) {
   for(int N = 1; N <= Ntr; N++){
     Sum += PS1[N];
   }
-  SU[0] = Sum;
+  SU[0] = 0;
   double PS2[13];
 
   #pragma omp parallel for
@@ -65,7 +65,7 @@ double Euler(double T) {
   double Avgsu = 0;
   
   for(int j = 0; j < 12; j++) {
-    Avgsu += C[j]*SU[j];
+    Avgsu += C[j]*Sum + C[j]*SU[j];
   }
 
   double Fun = U*Avgsu/2048;
@@ -81,12 +81,10 @@ int main() {
   
   // Each of these is also fully independent, so could be run on a separate server
   // And collected + sorted after all of them finish
-  for(int j = 0; j < 20; j++)
+  for(int j = 0; j < 10; j++)
   for(int i = 0; i <= 12; i++) {
     cout << Euler(i) << ", ";
   }
   cout <<"]" << endl;
   return 0;
 }
-
-
