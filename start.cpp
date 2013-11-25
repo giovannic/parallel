@@ -41,12 +41,12 @@ double Euler(double T) {
   // #2 Reduce - sequential
   // Sum = sum(PS1);
 
-  SU[0] = Sum;
+  SU[0] = 0;
   
   for(int K = 0; K < 12; K++) {
     int N = Ntr + K+1;
     double Y = N*H;
-    SU[K+1] = SU[K] + pow((-1), N)*LReal(X,Y);
+    SU[K+1] = (SU[K] + pow((-1), N)*LReal(X,Y));
   }
   
   //Can be refactored to
@@ -76,7 +76,7 @@ double Euler(double T) {
   double Avgsu = 0;
   
   for(int j = 0; j < 12; j++) {
-    Avgsu += C[j]*SU[j];
+    Avgsu += C[j]*Sum + C[j]*SU[j];
   }
 
   // Can be refactored to
