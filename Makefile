@@ -3,8 +3,8 @@ start: start.o mystery.o
 
 prof: start
 	g++ start.o mystery.o -g -pg -fopenmp -o startp
-	./start
-	gprof start gmon.out
+	./startp
+	gprof startp gmon.out
 
 start.o: start.cpp
 	g++ -Wall -c start.cpp
