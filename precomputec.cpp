@@ -1,4 +1,5 @@
 #include<iostream>
+#include "choose.h"
 
 using namespace std;
 
@@ -13,6 +14,7 @@ unsigned long long choose(unsigned n, unsigned k){
   return r;
 }
 
+/*
 int main(){
   int k;
   cin >> k;
@@ -23,4 +25,4 @@ int main(){
   }
   cout << "};";
 }
-
+*/

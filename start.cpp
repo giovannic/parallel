@@ -7,19 +7,10 @@
 using namespace std;
 
 #include "mystery.h"
+#include "choose.h"
 
-double L2(double X, double Y){
-  complex<double> S (X, Y);
-  double Rho = 0.75;
-  double Mean = 1;
-	
-  complex<double> Gs = 1.0/sqrt(1.0 + 2.0 * S);
-  complex<double> Gse = (1.0 - Gs)/(Mean*S);
-  complex<double> Fs = (1.0 - Gse)/(S*(1.0 - Rho*Gse));
-	
-  double Rfs = Fs.real();
-  return Rfs;
-}
+#define T_DIV 1
+#define TS 1200
 
 double LReal(double X, double Y) {
   return L(X,Y).real();
@@ -27,10 +18,14 @@ double LReal(double X, double Y) {
 
 double Euler(double T) {
   double SU[13];
-  int C[] = {1,11,55,165,330,462,462,330,165,55,11,1};
+  unsigned long long C[TS]; 
+  
+  for(int i = 0; i < TS; i++){
+    C[i] = choose(TS, i);
+  }
 
   double A = 18.4;
-  int Ntr = 15;
+  int Ntr = 1500;
   double U = exp(A/2)/T;
   double X = A/(2*T);
   double H = M_PI/T;
@@ -42,22 +37,18 @@ double Euler(double T) {
   }
 
   SU[0] = Sum;
-  for(int K = 0; K < 12; K++) {
+  for(int K = 0; K < TS; K++) {
     int N = Ntr + K+1;
     double Y = N*H;
     SU[K+1] = SU[K] + pow((-1), N)*LReal(X,Y);
   }
 
-  double Avgsu = 0;
   double Avgsu1 = 0;
-  for(int j = 0; j < 12; j++) {
-    Avgsu += C[j]*SU[j];
+  for(int j = 0; j < TS; j++) {
     Avgsu1 += C[j]*SU[j+1];
   }
 
-  double Fun = U*Avgsu/2048;
   double Fun1 = U*Avgsu1/2048;
-  double err = abs(Fun-Fun1)/2;
 
   return Fun1;
 
@@ -65,20 +56,13 @@ double Euler(double T) {
 
 int main() {
 
-  cout << "Welcome, agent(s)! Best of luck." << endl;
-  //Euler();
-  
-  //time_t  timev;
-  //time(&timev);
-  //double T = (double) timev;
-//
-  //Euler(T);
+  int t_length = TS/T_DIV - 1;
+
   cout << "[";
-  for(int i = 1; i <= 12; i++) {
-    cout << Euler(i) << ", ";
+  for(int i = 0; i < t_length; i++) {
+    cout << Euler((double)(i + 1) / T_DIV) << ", ";
   }
   cout <<"]" << endl;
   return 0;
+
 }
-
-
