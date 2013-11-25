@@ -10,7 +10,7 @@ using namespace std;
 #include "choose.h"
 
 #define T_DIV 1
-#define TS 1200
+#define TS 12
 
 double LReal(double X, double Y) {
   return L(X,Y).real();
@@ -25,7 +25,7 @@ double Euler(double T) {
   }
 
   double A = 18.4;
-  int Ntr = 1500;
+  int Ntr = 15;
   double U = exp(A/2)/T;
   double X = A/(2*T);
   double H = M_PI/T;
@@ -45,7 +45,7 @@ double Euler(double T) {
 
   double Avgsu1 = 0;
   for(int j = 0; j < TS; j++) {
-    Avgsu1 += C[j]*SU[j+1];
+    Avgsu1 += C[j]*SU[j];
   }
 
   double Fun1 = U*Avgsu1/2048;
