@@ -43,9 +43,16 @@ double Euler(double T) {
   double PS2[13];
 
   #pragma omp parallel for
-  for(int N = 1; N <= Ntr; N++){
-    double Y = N*H;
-    PS1[N] = pow((-1), N)*LReal(X,Y);
+  for(int N = 0; N <= Ntr; N++){
+    if(N > 0){
+      double Y = N*H;
+      PS1[N] = pow((-1), N)*LReal(X,Y);
+    }
+    if(N < 12){
+      int K = Ntr + N + 1;
+      double Y = K * H;
+      PS2[N] = pow((-1), K) * LReal(X,Y);
+    }
   }
 
   for(int N = 1; N <= Ntr; N++){
@@ -56,10 +63,8 @@ double Euler(double T) {
   }
 
   double Avgsu = 0;
-  double offset = totalC*Sum;
-  
   for(int j = 0; j < 12; j++) {
-    Avgsu += offset + C[j]*SU[j];
+    Avgsu += totalC*Sum + C[j]*SU[j];
   }
 
   double Fun = U*Avgsu/totalC;
@@ -74,7 +79,7 @@ int main() {
   
   // Each of these is also fully independent, so could be run on a separate server
   // And collected + sorted after all of them finish
-  for(int j = 0; j < 10; j++){
+  for(int j = 0; j < 1; j++){
     double E[13];
 
     #pragma omp parallel for
