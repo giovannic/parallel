@@ -3,6 +3,7 @@
 #include <cmath>
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <mpi.h>
 
 using namespace std;
 
@@ -62,18 +63,48 @@ double Euler(double T) {
 int main() {
 
   cout << "Welcome, agent(s)! Best of luck." << endl;
-  //Euler();
-  
-  //time_t  timev;
-  //time(&timev);
-  //double T = (double) timev;
-//
-  //Euler(T);
-  cout << "[";
-  for(int i = 1; i <= 12; i++) {
-    cout << Euler(i) << ", ";
+
+  if(MPI_Init(NULL,NULL) != MPI_SUCCESS) {
+    return -1;
   }
-  cout <<"]" << endl;
+
+  int head = 0;
+
+  int rank, size;
+
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+  double ts[12] = {1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0,11.0,12.0};
+  double results[12];
+
+  double t;
+
+  //scatter
+  MPI_Scatter(&ts, 1, MPI_DOUBLE, &t, 1, MPI_DOUBLE, head, MPI_COMM_WORLD);
+
+  cout << t << endl;
+  // cout << *t << endl;
+  double result = Euler(t);
+  cout << result << endl;
+
+  MPI_Gather(&result, 12/size, MPI_DOUBLE, results, 12, MPI_DOUBLE, head, MPI_COMM_WORLD); 
+
+  // if (rank == head){
+  //   cout << '[';
+  //   for(int i = 1; i < 12; ++i){
+  //     cout << results[i] << ", ";
+  //   }
+  //   cout << ']' << endl;
+  // }
+
+  MPI_Finalize();
+
+  // cout << "[";
+  // for(int i = 1; i <= 12; i++) {
+  //   cout << Euler(i) << ", ";
+  // }
+  // cout <<"]" << endl;
   return 0;
 }
 
