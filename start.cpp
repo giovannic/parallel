@@ -48,16 +48,12 @@ double Euler(double T) {
     SU[K+1] = SU[K] + pow((-1), N)*LReal(X,Y);
   }
 
-  double Avgsu = 0;
   double Avgsu1 = 0;
   for(int j = 0; j < 12; j++) {
-    Avgsu += C[j]*SU[j];
     Avgsu1 += C[j]*SU[j+1];
   }
 
-  double Fun = U*Avgsu/2048;
   double Fun1 = U*Avgsu1/2048;
-  double err = abs(Fun-Fun1)/2;
 
   return Fun1;
 
