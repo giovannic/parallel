@@ -64,9 +64,10 @@ double Euler(double T) {
   }
   
   double Avgsu = 0;
+  double offset = totalC*Sum;
   
   for(int j = 0; j < 12; j++) {
-    Avgsu += totalC*Sum + C[j]*SU[j];
+    Avgsu += offset + C[j]*SU[j];
   }
   
   double Fun = U*Avgsu/totalC;
