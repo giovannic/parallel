@@ -74,7 +74,7 @@ int main() {
 //
   //Euler(T);
   cout << "[";
-  for(int i = 0; i <= 12; i++) {
+  for(int i = 1; i <= 12; i++) {
     cout << Euler(i) << ", ";
   }
   cout <<"]" << endl;
