@@ -8,19 +8,9 @@
 using namespace std;
 
 #include "mystery.h"
+#include "choose.h"
 
-double L2(double X, double Y){
-  complex<double> S (X, Y);
-  double Rho = 0.75;
-  double Mean = 1;
-	
-  complex<double> Gs = 1.0/sqrt(1.0 + 2.0 * S);
-  complex<double> Gse = (1.0 - Gs)/(Mean*S);
-  complex<double> Fs = (1.0 - Gse)/(S*(1.0 - Rho*Gse));
-	
-  double Rfs = Fs.real();
-  return Rfs;
-}
+#define TS 1200
 
 double LReal(double X, double Y) {
   return L(X,Y).real();
@@ -28,10 +18,14 @@ double LReal(double X, double Y) {
 
 double Euler(double T) {
   double SU[13];
-  int C[] = {1,11,55,165,330,462,462,330,165,55,11,1};
+  unsigned long long C[TS]; 
+  
+  for(int i = 0; i < TS; i++){
+    C[i] = choose(TS, i);
+  }
 
   double A = 18.4;
-  int Ntr = 15;
+  int Ntr = 1500;
   double U = exp(A/2)/T;
   double X = A/(2*T);
   double H = M_PI/T;
@@ -43,14 +37,14 @@ double Euler(double T) {
   }
 
   SU[0] = Sum;
-  for(int K = 0; K < 12; K++) {
+  for(int K = 0; K < TS; K++) {
     int N = Ntr + K+1;
     double Y = N*H;
     SU[K+1] = SU[K] + pow((-1), N)*LReal(X,Y);
   }
 
   double Avgsu1 = 0;
-  for(int j = 0; j < 12; j++) {
+  for(int j = 0; j < TS; j++) {
     Avgsu1 += C[j]*SU[j+1];
   }
 
@@ -75,28 +69,42 @@ int main() {
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-  double ts[12] = {1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0,11.0,12.0};
-  double results[12];
+  double ts[TS];// = {1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0,11.0,12.0};
 
-  double t;
+  for(int i = 0; i <= TS; i++) {
+    ts[i] = (12.0*(i+1))/TS;
+  }
+  double results[TS];
+
+  int t_len = TS/size;
+
+  double t[t_len];
 
   //scatter
-  MPI_Scatter(&ts, 1, MPI_DOUBLE, &t, 1, MPI_DOUBLE, head, MPI_COMM_WORLD);
+  MPI_Scatter(&ts, t_len, MPI_DOUBLE, &t, t_len, MPI_DOUBLE, head, MPI_COMM_WORLD);
 
-  cout << t << endl;
+  cout << "t: "<<t << endl;
+
+  double localResults[t_len];
   // cout << *t << endl;
-  double result = Euler(t);
-  cout << result << endl;
+  cout << t_len << endl;
+  for(int i = 0; i < t_len; i++) {
+    double result = Euler(t[i]);
+    localResults[i] = result;
+    cout << "(" << rank << ", " << i << ")" << endl;
+  }
 
-  MPI_Gather(&result, 12/size, MPI_DOUBLE, results, 12, MPI_DOUBLE, head, MPI_COMM_WORLD); 
 
-  // if (rank == head){
-  //   cout << '[';
-  //   for(int i = 1; i < 12; ++i){
-  //     cout << results[i] << ", ";
-  //   }
-  //   cout << ']' << endl;
-  // }
+
+  MPI_Gather(&localResults, t_len, MPI_DOUBLE, rank == head ? results : NULL, t_len, MPI_DOUBLE, head, MPI_COMM_WORLD); 
+
+  if (rank == head){
+    cout << '[';
+    for(int i = 1; i <= TS; ++i){
+      cout << results[i] << ", ";
+    }
+    cout << ']' << endl;
+  }
 
   MPI_Finalize();
 
@@ -106,6 +114,5 @@ int main() {
   // }
   // cout <<"]" << endl;
   return 0;
+
 }
-
-
