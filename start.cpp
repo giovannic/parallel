@@ -1,12 +1,26 @@
 #include <iostream>
 #include <complex>
 #include <cmath>
+#include <cstdio>
 #define _USE_MATH_DEFINES
 #include <math.h>
 
 using namespace std;
 
 #include "mystery.h"
+
+double L2(double X, double Y){
+  complex<double> S (X, Y);
+  double Rho = 0.75;
+  double Mean = 1;
+	
+  complex<double> Gs = 1.0/sqrt(1.0 + 2.0 * S);
+  complex<double> Gse = (1.0 - Gs)/(Mean*S);
+  complex<double> Fs = (1.0 - Gse)/(S*(1.0 - Rho*Gse));
+	
+  double Rfs = Fs.real();
+  return Rfs;
+}
 
 double LReal(double X, double Y) {
   return L(X,Y).real();
@@ -24,96 +38,51 @@ double Euler(double T) {
   double H = M_PI/T;
 
   double Sum = LReal(X,0)/2;
-  
-  for(int N = 1; N <= Ntr; N++) {
+  double PS1[16];
+
+  #pragma omp parallel for
+  for(int N = 1; N <= Ntr; N++){
     double Y = N*H;
-    Sum += pow((-1),N)*LReal(X,Y);
+    PS1[N] = pow((-1), N)*LReal(X,Y);
   }
 
-  // Can be refactored to Map -> Reduce
-  //
-  // #1 Map - fully independent
-  // PS1[Ntr+1];
-  // for(int N = 1; N <= Ntr; N++){
-  //	double Y = N*H;
-  // 	PS1[N] = poq((-1), N)*LReal(X, Y);
-  // }
-  //
-  // #2 Reduce - sequential
-  // Sum = sum(PS1);
-
+  for(int N = 1; N <= Ntr; N++){
+    Sum += PS1[N];
+  }
   SU[0] = 0;
-  
-  for(int K = 0; K < 12; K++) {
-    int N = Ntr + K+1;
-    double Y = N*H;
-    SU[K+1] = (SU[K] + pow((-1), N)*LReal(X,Y));
+  double PS2[13];
+
+  #pragma omp parallel for
+  for(int K = 0; K < 12; K++){
+    int N = Ntr + K + 1;
+    double Y = N * H;
+    PS2[K] = pow((-1), N) * LReal(X,Y);
+  }
+
+  for(int K = 0; K < 12; K++){
+    SU[K+1] = SU[K] + PS2[K];
   }
   
-  //Can be refactored to
-  //
-  // #1 Map - fully independent, each run only needs to know H and X
-  //
-  // double PS[13]
-  // for(int K = 0; K < 12; K++){
-  //	int N = Ntr + K + 1;
-  //	double Y = N * H;
-  //	PS[K] = pow((-1), N) * LReadl(X,Y);
-  // }
-  //
-  // #2 Sequential Reduce - fully sequential
-  // #3 Parallel - could be turned into fully independent by
-  // distributing PS and Sum to all of the process and collecting the result:
-  // SU[1] = Sum + PS[0]
-  // SU[2] = Sum + PS[0] + PS[1]
-  // SU[3] = Sum + PS[0] + PS[1] + PS[2]
-  // 
-  // for(int K = 0; K < 12; k++){
-  //  SU[K+1] = SU[K] + PS[K];
-  // }
-  
-  // This is where computations of Fun and Fun1 could be done independantly
-  // They could diverge onto two different thingies
   double Avgsu = 0;
   
   for(int j = 0; j < 12; j++) {
     Avgsu += totalC*Sum + C[j]*SU[j];
   }
-
-  // Can be refactored to
-  //
-  // CS[2][13]
-  //
-  // # Fully independent loop - map
-  // for(int j = 0; j < 12; j++){
-  // 	CS[0][j] = C[j] * SU[j];
-  // }
-  //
-  // # Fully independent loop - map
-  // # Each process requires to know only C[j] and Su[j+1]
-  // for(int j = 0; j < 12; j++){
-  //	CS[1][j] = C[j]*SU[j+1];
-  // }
-  //
-  // # Reduce - fuly sequential
-  // Avgsu = sum(CS[0]);
-  // Avgsu1 = sum(CS[1])
-  
   
   double Fun = U*Avgsu/totalC;
   
-  // This is where Fun and Fun1 have to converge
-
   return Fun;
 
 }
 
 int main() {
 
+  cout << "Welcome, agent(s)! Best of luck." << endl;
   cout << "[";
   
   // Each of these is also fully independent, so could be run on a separate server
   // And collected + sorted after all of them finish
+  for(int j = 0; j < 10; j++)
   for(int i = 0; i <= 12; i++) {
     cout << Euler(i) << ", ";
   }
