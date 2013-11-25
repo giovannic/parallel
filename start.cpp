@@ -8,19 +8,9 @@
 using namespace std;
 
 #include "mystery.h"
+#include "choose.h"
 
-double L2(double X, double Y){
-  complex<double> S (X, Y);
-  double Rho = 0.75;
-  double Mean = 1;
-	
-  complex<double> Gs = 1.0/sqrt(1.0 + 2.0 * S);
-  complex<double> Gse = (1.0 - Gs)/(Mean*S);
-  complex<double> Fs = (1.0 - Gse)/(S*(1.0 - Rho*Gse));
-	
-  double Rfs = Fs.real();
-  return Rfs;
-}
+#define TS 12
 
 double LReal(double X, double Y) {
   return L(X,Y).real();
@@ -28,8 +18,11 @@ double LReal(double X, double Y) {
 
 double Euler(double T) {
   double SU[13];
-  int C[] = {1,11,55,165,330,462,462,330,165,55,11,1};
-  int totalC = 2048;
+  unsigned long long C[TS]; 
+  
+  for(int i = 0; i < TS; i++){
+    C[i] = choose(TS, i);
+  }
 
   double A = 18.4;
   int Ntr = 15;
@@ -58,16 +51,16 @@ double Euler(double T) {
   for(int N = 1; N <= Ntr; N++){
     Sum += PS1[N];
   }
-  for(int K = 0; K < 12; K++){
+  for(int K = 0; K < TS; K++){
     SU[K+1] = SU[K] + PS2[K];
   }
 
   double Avgsu = 0;
-  for(int j = 0; j < 12; j++) {
-    Avgsu += totalC*Sum + C[j]*SU[j+1];
+  for(int j = 0; j < TS; j++) {
+    Avgsu += C[j]*Sum + C[j]*SU[j+1];
   }
 
-  double Fun = U*Avgsu/totalC;
+  double Fun = U*Avgsu/2048;
 
   return Fun;
 }
@@ -83,11 +76,11 @@ int main() {
     double E[13];
 
     #pragma omp parallel for
-    for(int i = 0; i<= 12; i++){
-      E[i] = Euler(i);
+    for(int i = 0; i<= TS; i++){
+      E[i] = Euler(12.0*(i+1)/TS);
     }
 
-    for(int i = 0; i <= 12; i++) {
+    for(int i = 0; i <= TS; i++) {
       cout << E[i] << ", ";
     }
   }
