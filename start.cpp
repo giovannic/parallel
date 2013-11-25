@@ -39,40 +39,37 @@ double Euler(double T) {
 
   double Sum = LReal(X,0)/2;
   double PS1[16];
+  SU[0] = 0;
+  double PS2[13];
 
   #pragma omp parallel for
-  for(int N = 1; N <= Ntr; N++){
-    double Y = N*H;
-    PS1[N] = pow((-1), N)*LReal(X,Y);
+  for(int N = 0; N <= Ntr; N++){
+    if(N > 0){
+      double Y = N*H;
+      PS1[N] = pow((-1), N)*LReal(X,Y);
+    }
+    if(N < 12){
+      int K = Ntr + N + 1;
+      double Y = K * H;
+      PS2[N] = pow((-1), K) * LReal(X,Y);
+    }
   }
 
   for(int N = 1; N <= Ntr; N++){
     Sum += PS1[N];
   }
-  SU[0] = 0;
-  double PS2[13];
-
-  #pragma omp parallel for
-  for(int K = 0; K < 12; K++){
-    int N = Ntr + K + 1;
-    double Y = N * H;
-    PS2[K] = pow((-1), N) * LReal(X,Y);
-  }
-
   for(int K = 0; K < 12; K++){
     SU[K+1] = SU[K] + PS2[K];
   }
-  
+
   double Avgsu = 0;
-  
   for(int j = 0; j < 12; j++) {
     Avgsu += totalC*Sum + C[j]*SU[j];
   }
-  
-  double Fun = U*Avgsu/totalC;
-  
-  return Fun;
 
+  double Fun = U*Avgsu/totalC;
+
+  return Fun;
 }
 
 int main() {
@@ -82,9 +79,17 @@ int main() {
   
   // Each of these is also fully independent, so could be run on a separate server
   // And collected + sorted after all of them finish
-  for(int j = 0; j < 10; j++)
-  for(int i = 0; i <= 12; i++) {
-    cout << Euler(i) << ", ";
+  for(int j = 0; j < 10; j++){
+    double E[13];
+
+    #pragma omp parallel for
+    for(int i = 0; i<= 12; i++){
+      E[i] = Euler(i);
+    }
+
+    for(int i = 0; i <= 12; i++) {
+      cout << E[i] << ", ";
+    }
   }
   cout <<"]" << endl;
   return 0;

@@ -7,7 +7,7 @@ prof: start
 	gprof -b startp gmon.out
 
 start.o: start.cpp
-	g++ -Wall -c start.cpp
+	g++ -Wall -fopenmp -c start.cpp
 
 clean: 
 	rm -f start.o start
