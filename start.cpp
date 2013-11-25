@@ -36,7 +36,7 @@ double Euler(double T) {
     Sum += pow((-1),N)*LReal(X,Y);
   }
 
-  SU[0] = Sum;
+  SU[0] = 0;
   for(int K = 0; K < TS; K++) {
     int N = Ntr + K+1;
     double Y = N*H;
@@ -45,7 +45,7 @@ double Euler(double T) {
 
   double Avgsu1 = 0;
   for(int j = 0; j < TS; j++) {
-    Avgsu1 += C[j]*SU[j];
+    Avgsu1 += C[j]*Sum + C[j]*SU[j];
   }
 
   double Fun1 = U*Avgsu1/2048;
