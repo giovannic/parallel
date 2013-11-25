@@ -6,12 +6,23 @@
 #include <math.h>
 #include <mpi.h>
 
+#define len 20
+
 using namespace std;
 
 #include "mystery.h"
 
 double LReal(double X, double Y) {
   return L(X,Y).real();
+}
+
+unsigned long factorial(int n)
+{
+  return (n == 1 || n == 0) ? 1 : factorial(n - 1) * n;
+}
+
+unsigned long bin(int n, int k) {
+  return factorial(n)/(factorial(k)*factorial(n-k));
 }
 
 double Euler(double T) {
