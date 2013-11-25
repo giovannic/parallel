@@ -87,11 +87,9 @@ double Euler(double T) {
   // This is where computations of Fun and Fun1 could be done independantly
   // They could diverge onto two different thingies
   double Avgsu = 0;
-  double Avgsu1 = 0;
   
   for(int j = 0; j < 12; j++) {
     Avgsu += C[j]*SU[j];
-    Avgsu1 += C[j]*SU[j+1];
   }
 
   // Can be refactored to
@@ -115,12 +113,10 @@ double Euler(double T) {
   
   
   double Fun = U*Avgsu/2048;
-  double Fun1 = U*Avgsu1/2048;
   
   // This is where Fun and Fun1 have to converge
-  double err = abs(Fun-Fun1)/2;
 
-  return Fun1;
+  return Fun;
 
 }
 
