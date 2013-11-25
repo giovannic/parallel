@@ -70,15 +70,27 @@ int main() {
     return -1;
   }
 
-  cout << "[";
+  int head = 1;
+  
+  //rank is the iteration of euler
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   
   // Each of these is also fully independent, so could be run on a separate server
   // And collected + sorted after all of them finish
   //for(int j = 0; j < 10; j++)
-  for(int i = 0; i <= 12; i++) {
-    cout << Euler(i) << ", ";
+  double result = Euler(rank);
+  double *results;
+  int size;
+  MPI_Comm_size(MPI_COMM_WORLD, &size);
+  if (rank == head){
+    double allocation[size];
+    //results = (double *)malloc(size*sizeof(double));
+    results = allocation;
   }
-  cout <<"]" << endl;
+
+  MPI_Gather( &result, 1, MPI_DOUBLE, results, size, MPI_DOUBLE, head, MPI_COMM_WORLD); 
+  //(&result, MPI_DOUBLE, head, MPI_ANY_TAG, MPI_COMM_WORLD);
 
   MPI_Finalize();
 
