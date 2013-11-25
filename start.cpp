@@ -4,23 +4,11 @@
 #include <cstdio>
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <mpi.h>
 
 using namespace std;
 
 #include "mystery.h"
-
-double L2(double X, double Y){
-  complex<double> S (X, Y);
-  double Rho = 0.75;
-  double Mean = 1;
-	
-  complex<double> Gs = 1.0/sqrt(1.0 + 2.0 * S);
-  complex<double> Gse = (1.0 - Gs)/(Mean*S);
-  complex<double> Fs = (1.0 - Gse)/(S*(1.0 - Rho*Gse));
-	
-  double Rfs = Fs.real();
-  return Rfs;
-}
 
 double LReal(double X, double Y) {
   return L(X,Y).real();
@@ -78,15 +66,21 @@ double Euler(double T) {
 
 int main() {
 
-  cout << "Welcome, agent(s)! Best of luck." << endl;
+  if (MPI_Init(NULL, NULL) != MPI_SUCCESS){
+    return -1;
+  }
+
   cout << "[";
   
   // Each of these is also fully independent, so could be run on a separate server
   // And collected + sorted after all of them finish
-  for(int j = 0; j < 10; j++)
+  //for(int j = 0; j < 10; j++)
   for(int i = 0; i <= 12; i++) {
     cout << Euler(i) << ", ";
   }
   cout <<"]" << endl;
+
+  MPI_Finalize();
+
   return 0;
 }
