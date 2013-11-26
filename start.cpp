@@ -11,30 +11,33 @@ using namespace std;
 #include "choose.h"
 
 #define TS 12
+#define NTR 15
 
 double LReal(double X, double Y) {
   return L(X,Y).real();
 }
 
-double Euler(double T) {
-  double SU[13];
-  unsigned long long C[TS]; 
-  
+unsigned long long C[TS]; 
+void PrecomputeC(){
   #pragma omp parallel for
   for(int i = 0; i < TS; i++){
-    C[i] = choose(TS, i);
+    C[i] = choose(TS-1, i);
   }
+}
 
+double Euler(double T) {
+  double SU[TS+1];
+  
   double A = 18.4;
-  int Ntr = 15;
+  int Ntr = NTR;
   double U = exp(A/2)/T;
   double X = A/(2*T);
   double H = M_PI/T;
 
   double Sum = LReal(X,0)/2;
-  double PS1[16];
+  double PS1[NTR+1];
   SU[0] = 0;
-  double PS2[13];
+  double PS2[TS+1];
 
   #pragma omp parallel for
   for(int N = 1; N <= Ntr; N++){
@@ -43,7 +46,7 @@ double Euler(double T) {
   }
 
   #pragma omp parallel for
-  for (int N = 0; N < 12; N++)
+  for (int N = 0; N < TS; N++)
   {
     int K = Ntr + N + 1;
     double Y = K * H;
@@ -66,20 +69,18 @@ double Euler(double T) {
     Avgsu += (C[j]*Sum + C[j]*SU[j+1]);
   }
 
-  double Fun = U*Avgsu/2048;
-
-  return Fun;
+  return U*Avgsu/2048;
 }
 
 int main() {
-
+  PrecomputeC();
   cout << "Welcome, agent(s)! Best of luck." << endl;
   cout << "[";
   
   // Each of these is also fully independent, so could be run on a separate server
   // And collected + sorted after all of them finish
   for(int j = 0; j < 1; j++){
-    double E[13];
+    double E[TS+1];
 
     #pragma omp parallel for
     for(int i = 0; i<= TS; i++){
