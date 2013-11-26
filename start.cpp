@@ -8,9 +8,10 @@
 using namespace std;
 
 #include "mystery.h"
-#include "choose.h"
 
-#define TS 800 
+#define TS 1200
+#define M 11
+#define Ntr 1500
 
 double LReal(double X, double Y) {
   return L(X,Y).real();
@@ -18,34 +19,31 @@ double LReal(double X, double Y) {
 
 double Euler(double T) {
   double SU[13];
-  unsigned long long C[TS]; 
-  
-  for(int i = 0; i < TS; i++){
-    C[i] = choose(TS, i);
-  }
+  int C[] = {1,11,55,165,330,462,462,330,165,55,11,1};
 
-  double A = 18.4;
-  int Ntr = 1500;
+  double A = 18.4; //accurate enough
   double U = exp(A/2)/T;
   double X = A/(2*T);
   double H = M_PI/T;
 
+  //distribute between Ntr processors and reduce
   double Sum = LReal(X,0)/2;
   for(int N = 1; N <= Ntr; N++) {
     double Y = N*H;
     Sum += pow((-1),N)*LReal(X,Y);
   }
 
-  SU[0] = Sum;
-  for(int K = 0; K < TS; K++) {
+  //dynamic program into SU and reduce using the current loop
+  SU[0] = 0;
+  for(int K = 0; K < M; K++) {
     int N = Ntr + K+1;
     double Y = N*H;
     SU[K+1] = SU[K] + pow((-1), N)*LReal(X,Y);
   }
 
   double Avgsu1 = 0;
-  for(int j = 0; j < TS; j++) {
-    Avgsu1 += C[j]*SU[j+1];
+  for(int j = 0; j < M; j++) {
+    Avgsu1 += C[j]*Sum + C[j]*SU[j+1];
   }
 
   double Fun1 = U*Avgsu1/2048;
