@@ -20,6 +20,7 @@ double Euler(double T) {
   double SU[13];
   unsigned long long C[TS]; 
   
+  #pragma omp parallel for
   for(int i = 0; i < TS; i++){
     C[i] = choose(TS, i);
   }
@@ -36,28 +37,33 @@ double Euler(double T) {
   double PS2[13];
 
   #pragma omp parallel for
-  for(int N = 0; N <= Ntr; N++){
-    if(N > 0){
-      double Y = N*H;
-      PS1[N] = pow((-1), N)*LReal(X,Y);
-    }
-    if(N < 12){
-      int K = Ntr + N + 1;
-      double Y = K * H;
-      PS2[N] = pow((-1), K) * LReal(X,Y);
-    }
+  for(int N = 1; N <= Ntr; N++){
+    double Y = N*H;
+    PS1[N] = pow((-1), N)*LReal(X,Y);
   }
 
+  #pragma omp parallel for
+  for (int N = 0; N < 12; N++)
+  {
+    int K = Ntr + N + 1;
+    double Y = K * H;
+    PS2[N] = pow((-1), K) * LReal(X,Y);
+  }
+
+  #pragma omp parallel for reduction(+:Sum)
   for(int N = 1; N <= Ntr; N++){
     Sum += PS1[N];
   }
+
   for(int K = 0; K < TS; K++){
     SU[K+1] = SU[K] + PS2[K];
   }
 
   double Avgsu = 0;
+
+  #pragma omp parallel for reduction(+:Avgsu)
   for(int j = 0; j < TS; j++) {
-    Avgsu += C[j]*Sum + C[j]*SU[j+1];
+    Avgsu += (C[j]*Sum + C[j]*SU[j+1]);
   }
 
   double Fun = U*Avgsu/2048;
