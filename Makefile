@@ -1,10 +1,10 @@
 prof: start
-	g++ start.o mystery.o precomputec.o -g -pg -fopenmp -o startp
+	g++ start.o mystery.o precomputec.o -g -pg -fopenmp -Ofast -o startp
 	./startp
 	gprof -b startp gmon.out
 
 start: start.o mystery.o precomputec.o
-	g++ start.o mystery.o precomputec.o -fopenmp -o start
+	g++ start.o mystery.o precomputec.o -fopenmp -Ofast -o start
 
 start.o: start.cpp
 	g++ -Wall -fopenmp -c start.cpp
