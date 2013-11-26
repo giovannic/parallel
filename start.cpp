@@ -10,7 +10,7 @@ using namespace std;
 #include "mystery.h"
 #include "choose.h"
 
-#define TS 1200
+#define TS 800 
 
 double LReal(double X, double Y) {
   return L(X,Y).real();
@@ -93,8 +93,6 @@ int main() {
     localResults[i] = result;
     cout << "(" << rank << ", " << i << ")" << endl;
   }
-
-
 
   MPI_Gather(&localResults, t_len, MPI_DOUBLE, rank == head ? results : NULL, t_len, MPI_DOUBLE, head, MPI_COMM_WORLD); 
 
