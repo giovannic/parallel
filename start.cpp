@@ -11,17 +11,18 @@ using namespace std;
 #include "choose.h"
 
 #define TS 12
+#define M 11
 #define NTR 15
 
 double LReal(double X, double Y) {
   return L(X,Y).real();
 }
 
-unsigned long long C[TS]; 
+unsigned long long C[M+1]; 
 void PrecomputeC(){
   #pragma omp parallel for
-  for(int i = 0; i < TS; i++){
-    C[i] = choose(TS-1, i);
+  for(int i = 0; i <= M; i++){
+    C[i] = choose(M-1, i);
   }
 }
 
@@ -46,7 +47,7 @@ double Euler(double T) {
   }
 
   #pragma omp parallel for
-  for (int N = 0; N < TS; N++)
+  for (int N = 0; N < M; N++)
   {
     int K = Ntr + N + 1;
     double Y = K * H;
@@ -58,14 +59,14 @@ double Euler(double T) {
     Sum += PS1[N];
   }
 
-  for(int K = 0; K < TS; K++){
+  for(int K = 0; K < M; K++){
     SU[K+1] = SU[K] + PS2[K];
   }
 
   double Avgsu = 0;
 
   #pragma omp parallel for reduction(+:Avgsu)
-  for(int j = 0; j < TS; j++) {
+  for(int j = 0; j < M; j++) {
     Avgsu += (C[j]*Sum + C[j]*SU[j+1]);
   }
 
