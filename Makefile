@@ -1,5 +1,5 @@
 prof: start
-	g++ start.o mystery.o precomputec.o -g -pg -fopenmp -Ofast -o startp
+	g++ start.cpp mystery.o precomputec.cpp -g -pg -fopenmp -Ofast -o startp
 	./startp
 	gprof -b startp gmon.out
 

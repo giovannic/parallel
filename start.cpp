@@ -28,11 +28,11 @@ void PrecomputeC(){
 double Euler(double T) {
   double SU[TS+1];
   
-  double A = 18.4;
-  int Ntr = NTR;
-  double U = exp(A/2)/T;
-  double X = A/(2*T);
-  double H = M_PI/T;
+  const double A = 18.4;
+  const int Ntr = NTR;
+  const double U = exp(A/2)/T;
+  const double X = A/(2*T);
+  const double H = M_PI/T;
 
   double Sum = LReal(X,0)/2;
   double PS1[NTR+1];
