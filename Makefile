@@ -7,10 +7,10 @@ start: start.o mystery.o precomputec.o
 	g++ start.o mystery.o precomputec.o -fopenmp -Ofast -o start
 
 start.o: start.cpp
-	g++ -Wall -fopenmp -c start.cpp
+	g++ -Wall -fopenmp -Ofast -c -pg start.cpp
 
 precomputec.o: precomputec.cpp
-	g++ -Wall -c precomputec.cpp
+	g++ -Wall -c -Ofast precomputec.cpp
 
 clean: 
 	rm -f start.o start

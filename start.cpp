@@ -10,9 +10,9 @@ using namespace std;
 #include "mystery.h"
 #include "choose.h"
 
-#define TS 12
+#define TS 1200
 #define M 11
-#define NTR 15
+#define NTR 1500
 
 double LReal(double X, double Y) {
   return L(X,Y).real();
